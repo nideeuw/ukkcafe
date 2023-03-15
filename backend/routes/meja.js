@@ -5,11 +5,16 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
+const md5 = require('md5')
+const auth = require('../auth')
+const jwt = require('jsonwebtoken')
+const SECRET_KEY = "Cafe"
+
 const models = require('../models/index')
 const meja = models.meja
 
 // get all
-app.get('/', async (req, res) => {
+app.get('/', auth('kasir', 'admin'), async (req, res) => {
     await meja.findAll({
         order: [
             ["id_meja", "ASC"]
@@ -28,7 +33,7 @@ app.get('/', async (req, res) => {
 })
 
 // get by id
-app.get('/:id_meja', async(req,res)=>{
+app.get('/:id_meja', auth('kasir', 'admin'), async(req,res)=>{
     let param = {id_meja: req.params.id_meja}
     await meja.findOne({where: param})
     .then(result =>{
@@ -43,7 +48,7 @@ app.get('/:id_meja', async(req,res)=>{
 app.get('/')
 
 // post
-app.post('/', async(req,res)=>{
+app.post('/', auth('kasir', 'admin'), async(req,res)=>{
     let mejas = req.body
     for(let index= 0;index <mejas.length; index++){
         const element = mejas[index]
@@ -65,7 +70,7 @@ app.post('/', async(req,res)=>{
 })
 
 // put
-app.put("/:id_meja", async(req, res) => {
+app.put("/:id_meja", auth('kasir', 'admin'), async(req, res) => {
     let param = {id_meja: req.params.id_meja};
     let data = {
         nomor_meja:req.body.nomor_meja
@@ -83,7 +88,7 @@ app.put("/:id_meja", async(req, res) => {
 })
 
 // delete
-app.delete("/:id_meja", async(req, res) => {
+app.delete("/:id_meja", auth('kasir', 'admin'), async(req, res) => {
     let param = {id_meja: req.params.id_meja};
     await meja.destroy({ where: param })
     .then(() => {

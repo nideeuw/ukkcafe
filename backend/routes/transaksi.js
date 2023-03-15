@@ -5,6 +5,11 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
+const md5 = require('md5')
+const auth = require('../auth')
+const jwt = require('jsonwebtoken')
+const SECRET_KEY = "Cafe"
+
 const models = require('../models/index')
 const { Op, where } = require('sequelize')
 const transaksi = models.transaksi
@@ -12,11 +17,19 @@ const meja = models.meja
 const detail_transaksi = models.detail_transaksi
 
 // get all
-app.get('/', async (req, res) => {
+app.get('/', auth('manajer', 'kasir'), async (req, res) => {
     await transaksi.findAll({
         order: [
             ["id_transaksi", "ASC"]
         ],
+        include: [
+            'user',
+            {
+                model: detail_transaksi,
+                as: "detail_transaksi",
+                include: ["menu"]
+            }
+        ]
     })
         .then(result => {
             res.json({
@@ -31,7 +44,7 @@ app.get('/', async (req, res) => {
 })
 
 // get by id
-app.get('/:id_transaksi', async (req, res) => {
+app.get('/:id_transaksi', auth('manajer', 'kasir'), async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi }
     await transaksi.findOne({ where: param })
         .then(result => {
@@ -44,13 +57,21 @@ app.get('/:id_transaksi', async (req, res) => {
 })
 
 // filtering data transaksi berdasarkan nama karyawan
-app.get('/user/:id_user', (req, res) => {
+app.get('/user/:id_user', auth('manajer'), (req, res) => {
     let indicator = { id_user: req.params.id_user }
     transaksi.findAll({
         where: indicator,
         order: [
             ["tgl_transaksi", "DESC"]
         ],
+        include: [
+            'user',
+            {
+                model: detail_transaksi,
+                as: "detail_transaksi",
+                include: ["menu"]
+            }
+        ]
     })
         .then(result => {
             res.json(result)
@@ -63,7 +84,7 @@ app.get('/user/:id_user', (req, res) => {
 })
 
 // post
-app.post('/', async (req, res) => {
+app.post('/', auth('manajer', 'kasir'), async (req, res) => {
     let current = new Date()
     let data = {
         tgl_transaksi: Date.now(),
@@ -124,7 +145,7 @@ app.post('/', async (req, res) => {
 })
 
 // filtering data transaksi berdasarkan tanggal tertentu
-app.post('/tanggal', (req, res) => {
+app.post('/tanggal', auth('manajer'), (req, res) => {
     let tgl_transaksi_awal = req.body.tgl_transaksi_awal
     let tgl_transaksi_akhir = req.body.tgl_transaksi_akhir
     transaksi.findAll({
@@ -148,7 +169,7 @@ app.post('/tanggal', (req, res) => {
 })
 
 // put
-app.put("/:id_transaksi", async (req, res) => {
+app.put("/:id_transaksi", auth('manajer', 'kasir'), async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi };
     let date = new Date()
     let data = {
@@ -170,32 +191,8 @@ app.put("/:id_transaksi", async (req, res) => {
         });
 })
 
-// app.put("/status/:id_transaksi", async(req, res) => {
-//     let param = {id_transaksi: req.params.id_transaksi};
-//     let date = new Date()
-//     let data = {
-//         status: "lunas"
-//     };
-
-//     await transaksi.update(data, { where: param })
-//     .then(async result => {
-//         let parameter =  transaksi.findOne ({where: param})
-//         console.log(result)
-//         let booking_meja = {
-//             booking : true
-//         }
-//         await meja.update(booking_meja, {where: parameter.id_meja})
-//         res.json(data);
-//     })
-//     .catch((error) => {
-//         res.json({
-//         message: error.message,
-//         });
-//     });
-// })
-
 // delete
-app.delete("/:id_transaksi", async (req, res) => {
+app.delete("/:id_transaksi", auth('manajer', 'kasir'), async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi };
     await transaksi.destroy({ where: param })
         .then(() => {

@@ -5,11 +5,16 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
+const md5 = require('md5')
+const auth = require('../auth')
+const jwt = require('jsonwebtoken')
+const SECRET_KEY = "Cafe"
+
 const models = require('../models/index')
 const menu = models.menu
 
 // get all
-app.get('/', async (req, res) => {
+app.get('/', auth('kasir', 'admin'), async (req, res) => {
     await menu.findAll({
         order: [
             ["id_menu", "ASC"]
@@ -28,7 +33,7 @@ app.get('/', async (req, res) => {
 })
 
 // get by id
-app.get('/:id_menu', async(req,res)=>{
+app.get('/:id_menu', auth('kasir', 'admin'), async(req,res)=>{
     let param = {id_menu: req.params.id_menu}
     await menu.findOne({where: param})
     .then(result =>{
@@ -41,7 +46,7 @@ app.get('/:id_menu', async(req,res)=>{
 })
 
 // post
-app.post('/', async(req,res)=>{
+app.post('/', auth('kasir', 'admin'), async(req,res)=>{
     let menus = req.body
     for(let index= 0;index <menus.length; index++){
         const element = menus[index]
@@ -66,7 +71,7 @@ app.post('/', async(req,res)=>{
 })
 
 // put
-app.put("/:id_menu", async(req, res) => {
+app.put("/:id_menu", auth('kasir', 'admin'), async(req, res) => {
     let param = {id_menu: req.params.id_menu};
     let data = {
         nama_menu:req.body.nama_menu,
@@ -88,7 +93,7 @@ app.put("/:id_menu", async(req, res) => {
 })
 
 // delete
-app.delete("/:id_menu", async(req, res) => {
+app.delete("/:id_menu", auth('kasir', 'admin'), async(req, res) => {
     let param = {id_menu: req.params.id_menu};
     await menu.destroy({ where: param })
     .then(() => {

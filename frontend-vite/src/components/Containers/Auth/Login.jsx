@@ -28,19 +28,19 @@ const ContainerLogin = () => {
                             case "admin":
                                 localStorage.setItem("token", res.data.token)
                                 localStorage.setItem("user", JSON.stringify(res.data.data))
-                                navigate("/admin/dashboard")
+                                navigate("/")
                                 break;
 
                             case "kasir":
                                 localStorage.setItem("token", res.data.token)
                                 localStorage.setItem("user", JSON.stringify(res.data.data))
-                                navigate("/kasir/dashboard")
+                                navigate("/")
                                 break;
 
                             default:
                                 localStorage.setItem("token", res.data.token)
                                 localStorage.setItem("user", JSON.stringify(res.data.data))
-                                navigate("/manajer/dashboard")
+                                navigate("/")
                                 break;
                         }
                     } else {

@@ -14,7 +14,7 @@ const models = require('../models/index')
 const user = models.user
 
 // get all
-app.get('/', auth, async (req, res) => {
+app.get('/', auth('manajer', 'kasir', 'admin'), async (req, res) => {
     await user.findAll({
         order: [
             ["id_user", "ASC"]
@@ -33,7 +33,7 @@ app.get('/', auth, async (req, res) => {
 })
 
 // get by id
-app.get('/:id_user', auth, async (req, res) => {
+app.get('/:id_user', auth('manajer', 'kasir', 'admin'), async (req, res) => {
     let param = { id_user: req.params.id_user }
     await user.findOne({ where: param })
         .then(result => {
@@ -93,7 +93,7 @@ app.post('/login', async (req, res) => {
 })
 
 // put
-app.put("/:id_user", auth, async (req, res) => {
+app.put("/:id_user", auth('manajer', 'kasir', 'admin'), async (req, res) => {
     let param = { id_user: req.params.id_user };
     let data = {
         nama_user: req.body.nama_user,
@@ -114,7 +114,7 @@ app.put("/:id_user", auth, async (req, res) => {
 })
 
 // delete
-app.delete("/:id_user", auth, async (req, res) => {
+app.delete("/:id_user", auth('manajer', 'kasir', 'admin'), async (req, res) => {
     let param = { id_user: req.params.id_user };
     await user.destroy({ where: param })
         .then(() => {
