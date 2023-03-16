@@ -73,7 +73,8 @@ app.post('/', auth('kasir', 'admin'), async(req,res)=>{
 app.put("/:id_meja", auth('kasir', 'admin'), async(req, res) => {
     let param = {id_meja: req.params.id_meja};
     let data = {
-        nomor_meja:req.body.nomor_meja
+        nomor_meja  : req.body.nomor_meja,
+        status      : req.body.status
     };
 
     await meja.update(data, { where: param })

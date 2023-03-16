@@ -10,6 +10,8 @@ const auth = require('../auth')
 const jwt = require('jsonwebtoken')
 const SECRET_KEY = "Cafe"
 
+const upload = require(`../upload-image`).single(`gambar`)
+
 const models = require('../models/index')
 const menu = models.menu
 
@@ -33,79 +35,94 @@ app.get('/', auth('kasir', 'admin'), async (req, res) => {
 })
 
 // get by id
-app.get('/:id_menu', auth('kasir', 'admin'), async(req,res)=>{
-    let param = {id_menu: req.params.id_menu}
-    await menu.findOne({where: param})
-    .then(result =>{
-        res.json(result)
-    }).catch(err =>{
-        res.json({
-            message: err.message
+app.get('/:id_menu', auth('kasir', 'admin'), async (req, res) => {
+    let param = { id_menu: req.params.id_menu }
+    await menu.findOne({ where: param })
+        .then(result => {
+            res.json(result)
+        }).catch(err => {
+            res.json({
+                message: err.message
+            })
         })
-    })
 })
 
 // post
-app.post('/', auth('kasir', 'admin'), async(req,res)=>{
-    let menus = req.body
-    for(let index= 0;index <menus.length; index++){
-        const element = menus[index]
-        let data ={
-            nama_menu:element.nama_menu,
-            jenis:element.jenis,
-            deskripsi:element.deskripsi,
-            gambar : element.gambar,
-            harga: element.harga
+app.post('/', auth('kasir', 'admin'), async (req, res) => {
+    /** run function upload */
+    upload(req, res, async error => {
+        /** check if there are errorwhen upload */
+        if (error) {
+            console.log(error)
+            return res.json({ message: error })
+        }
+
+        let menus = req.body
+        let data = {
+            nama_menu: req.body.nama_menu,
+            jenis: req.body.jenis,
+            deskripsi: req.body.deskripsi,
+            gambar: req.file.filename,
+            harga: req.body.harga
         }
         await menu.create(data)
-         .then(result =>{
-            res.json(result)
-            
-        }).catch(error => {
-              console.log(error);
-              res.json({
-              message: error.message
-              })
-        })   
-    }
+            .then(result => {
+                res.json(result)
+
+            }).catch(error => {
+                console.log(error);
+                res.json({
+                    message: error.message
+                })
+            })
+    })
 })
 
 // put
-app.put("/:id_menu", auth('kasir', 'admin'), async(req, res) => {
-    let param = {id_menu: req.params.id_menu};
+app.put("/:id_menu", auth('kasir', 'admin'), async (req, res) => {
+    upload(req, res, async error => {
+        /** check if there are errorwhen upload */
+        if (error) {
+            console.log(error)
+            return res.json({ message: error })
+        }
+
+    let param = { id_menu: req.params.id_menu };
     let data = {
-        nama_menu:req.body.nama_menu,
-        jenis:req.body.jenis,
-        deskripsi:req.body.deskripsi,
-        gambar : req.body.gambar,
+        nama_menu: req.body.nama_menu,
+        jenis: req.body.jenis,
+        deskripsi: req.body.deskripsi,
+        gambar: req.file.filename,
         harga: req.body.harga
     };
 
     await menu.update(data, { where: param })
-    .then(() => {
-        res.json(data);
-    })
-    .catch((error) => {
-        res.json({
-        message: error.message,
+        .then(() => {
+            res.json(data);
+        })
+        .catch((error) => {
+            res.json({
+                message: error.message,
+            });
         });
-    });
+
+    })
 })
 
 // delete
-app.delete("/:id_menu", auth('kasir', 'admin'), async(req, res) => {
-    let param = {id_menu: req.params.id_menu};
+app.delete("/:id_menu", auth('kasir', 'admin'), async (req, res) => {
+    let param = { id_menu: req.params.id_menu };
     await menu.destroy({ where: param })
-    .then(() => {
-        res.json({
-        message: "data has been deleted",
+        .then(() => {
+            res.json({
+                message: "data has been deleted",
+            });
+        })
+        .catch((error) => {
+            res.json({
+                message: error.message,
+            });
         });
-    })
-    .catch((error) => {
-        res.json({
-        message: error.message,
-        });
-    });
 })
 
 module.exports = app

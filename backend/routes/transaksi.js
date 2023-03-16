@@ -10,8 +10,8 @@ const auth = require('../auth')
 const jwt = require('jsonwebtoken')
 const SECRET_KEY = "Cafe"
 
-const models = require('../models/index')
 const { Op, where } = require('sequelize')
+const models = require('../models/index')
 const transaksi = models.transaksi
 const meja = models.meja
 const detail_transaksi = models.detail_transaksi
@@ -84,7 +84,7 @@ app.get('/user/:id_user', auth('manajer'), (req, res) => {
 })
 
 // post
-app.post('/', auth('manajer', 'kasir'), async (req, res) => {
+app.post('/', auth('kasir'), async (req, res) => {
     let current = new Date()
     let data = {
         tgl_transaksi: Date.now(),
@@ -169,19 +169,26 @@ app.post('/tanggal', auth('manajer'), (req, res) => {
 })
 
 // put
-app.put("/:id_transaksi", auth('manajer', 'kasir'), async (req, res) => {
+app.put("/:id_transaksi", auth('kasir'), async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi };
-    let date = new Date()
     let data = {
-        tgl_transaksi: Date.now(),
-        id_user: req.body.id_user,
         id_meja: req.body.id_meja,
-        nama_pelanggan: req.body.nama_pelanggan,
         status: req.body.status
     };
 
     await transaksi.update(data, { where: param })
-        .then(result => {
+        .then(async (result) => {
+            if (data.status === 'lunas'){
+                let mejaData = {
+                    status: 'tersedia'
+                };
+                await meja.update(mejaData, { where: { id_meja: data.id_meja }})
+            } else if(data.status === 'belum_bayar'){
+                let mejaData = {
+                    status: 'tidak_tersedia'
+                };
+                await meja.update(mejaData, { where: { id_meja: data.id_meja }})
+            }
             res.json(data);
         })
         .catch((error) => {

@@ -44,8 +44,7 @@ app.get('/:id_detail_transaksi', auth('manajer', 'kasir'), async(req,res)=>{
 app.post('/', auth('manajer', 'kasir'), async(req,res)=>{
     let data ={
         id_transaksi:req.body.id_transaksi,
-        id_menu:req.body.id_menu,
-        harga: req.body.harga
+        id_menu:req.body.id_menu
     }
     await detail_transaksi.create(data)
         .then(result =>{
@@ -64,8 +63,7 @@ app.put("/:id_detail_transaksi", auth('manajer', 'kasir'), async(req, res) => {
     let param = {id_detail_transaksi: req.params.id_detail_transaksi};
     let data = {
         id_transaksi:req.body.id_transaksi,
-        id_menu:req.body.id_menu,
-        harga: req.body.harga
+        id_menu:req.body.id_menu
     };
 
     await detail_transaksi.update(data, { where: param })

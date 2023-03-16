@@ -18,7 +18,7 @@ auth = (role1, role2, role3) => {
                         message: "Invalid token"
                     })
                 } else {
-                    if (role.includes(user.resultUser.role)) {
+                    if (role.includes(user.role)) {
                         console.log(user);
                         next()
                     } else {

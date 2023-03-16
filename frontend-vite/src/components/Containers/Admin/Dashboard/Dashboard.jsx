@@ -3,7 +3,10 @@ import Sidebar from '../../../Common/Sidebar'
 
 const ContainerDashboard = () => {
   return (
-    <Sidebar />
+    <div className='flex'>
+      <Sidebar />
+      <h1 className="px-4 text-gray-900 text-xl font-medium">Selamat Datang Admin</h1>
+    </div>
   )
 }
 

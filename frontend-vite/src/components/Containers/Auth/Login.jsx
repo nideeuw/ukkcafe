@@ -137,7 +137,7 @@ const ContainerLogin = () => {
                             </form>
 
                             {/* Sign Up */}
-                            <div className="flex items-center justify-center mt-5">
+                            {/* <div className="flex items-center justify-center mt-5">
                                 <p className="text-sm text-center">Don’t have an account ?</p>
 
                                 <Link
@@ -146,7 +146,7 @@ const ContainerLogin = () => {
                                 >
                                     Sign Up for Free
                                 </Link>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Image Component */}
